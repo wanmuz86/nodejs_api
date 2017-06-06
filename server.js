@@ -4,6 +4,8 @@ var app        = express();                 // define our app using express
 var bodyParser = require('body-parser');
 
 var Place = require('./app/model/place.js')
+
+var placeController = require('./app/controllers/place.js')
 var mongoose   = require('mongoose');
 mongoose.connect('mongodb://wanmuz:ada1234@ds149551.mlab.com:49551/ada_class')
 
@@ -19,78 +21,16 @@ router.get('/', function(req, res) {
 });
 
 router.route('/places')
+.post(placeController.postPlaces)
+.get(placeController.getPlaces)
 
-    .post(function(req, res) {
 
-        var place = new Place();      
-        place.name = req.body.name;  
-        place.address = req.body.address;
-        var openingTimes = {
-        	opening : req.body.opening,
-        	closed: false,
-        	days: req.body.days
-        }
-        place.facilities = [req.body.facilities];
-        place.openingTimes = [openingTimes];
-        var coords = [req.body.latitude, req.body.longitude]
-        place.coords = coords;
-        place.save(function(err) {
-            if (err)
-                res.send(err);
+router.route('/places/:place_id')
+.post(placeController.updatePlace)
+.get(placeController.getPlace)
 
-            res.json({ message: 'Place created!' });
-        });
 
-    })
-    .get(function(req, res) {
-        Place.find(function(err, places) {
-            if (err)
-                res.send(err);
-
-            res.json(places);
-        });
-    })
-
-    router.route('/places/:place_id')
-    .get(function(req, res) {
-        Place.findById(req.params.place_id, function(err, place) {
-            if (err)
-                res.send(err);
-            res.json(place);
-        });
-    })
-    .post(function(req, res) {
-
-        Place.findById(req.params.place_id, function(err, place) {
-
-            if (err)
-                res.send(err);
-
-            place.name = req.body.name;  
-            place.description = req.body.description;
-        	place.country = req.body.country;
-
-            // save the place
-            place.save(function(err) {
-                if (err)
-                    res.send(err);
-
-                res.json({ message: 'Place updated!' });
-            });
-
-        });
-    })
-    .delete(function(req, res) {
-        Place.remove({
-            _id: req.params.place_id
-        }, function(err, place) {
-            if (err)
-                res.send(err);
-
-            res.json({ message: 'Successfully deleted' });
-        });
-    })
-    router.route('/places/:place_id/reviews')
+router.route('/places/:place_id/reviews')
     .post(function(req,res){
         Place.findById(req.params.place_id, function(err, place){
             if (err)
@@ -127,9 +67,26 @@ router.route('/places')
     })
 
 
+router.route('/topfiveplaces')
+.get(function(req,res){
+    Place.find()
+    .limit(5)
+    .sort({avgRating: '-1'})
+    .exec(function(err, places){
+        if (err)
+            res.send(err)
+
+        res.json(places)
 
 
+    })
+})
 
+router.route('/latestplace')
+.get(function(req,res){
+
+    
+})
 
 app.use('/api', router);
 
