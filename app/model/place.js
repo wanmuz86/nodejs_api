@@ -15,6 +15,21 @@ var reviewSchema = new Schema({
 	createdOn: {type:Date, default: Date.now}
 });
 
+var priceSchema = new Schema({
+	normal_price: Number,
+	discountedPrice: Number,
+	isDiscount : {type: Boolean, default:false}
+})
+var productSchema = new Schema({
+
+	name: String,
+	description: String,
+	image_url: String,
+	reviews: [reviewSchema],
+	avgRating: {type:Number, default:0},
+	price : priceSchema
+})
+
 var PlaceSchema = new Schema({
 	name:{type : String, required:true},
 	address:String,
@@ -23,6 +38,8 @@ var PlaceSchema = new Schema({
 	coords: {type: [Number], index:'2dsphere'},
 	openingTimes: [openingTimeSchema],
 	reviews: [reviewSchema],
+	dateAdded: {type:Date, default: Date.now},
+	products: [productSchema]
 });
 
 

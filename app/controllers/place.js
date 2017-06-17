@@ -67,3 +67,77 @@ exports.deletePlace = function(req,res){
             res.json({ message: 'Successfully deleted' });
         });
 }
+
+exports.postReview = function(req,res){
+        Place.findById(req.params.place_id, function(err, place){
+            if (err)
+                res.send(err)
+
+            var newReview = {
+                author : req.body.author,
+                rating : req.body.rating,
+                reviewText: req.body.reviewText 
+            }
+
+            var totalRating = place.avgRating * place.reviews.length
+
+            place.avgRating = (parseInt(totalRating) + parseInt(newReview.rating)) / (place.reviews.length + 1)
+           
+            place.reviews.push(newReview)
+            place.save(function(err){
+                if (err)
+                    res.send(err);
+
+                res.json({message: 'Review added!'});
+            })
+
+        })
+    }
+
+exports.retrieveReview = function(req,res){
+        Place.findById(req.params.place_id, function(err, place){
+
+            if (err)
+                res.send(err)
+
+            res.json(place.reviews)
+        })
+    }
+
+exports.topfivePlaces = function(req,res){
+    Place.find()
+    .limit(5)
+    .sort({avgRating: '-1'})
+    .exec(function(err, places){
+        if (err)
+            res.send(err)
+
+        res.json(places)
+
+
+    })
+}
+
+exports.latestPlace = function(req,res){
+    Place.find()
+    .limit(1)
+    .sort({dateAdded:'-1'})
+    .exec(function(err, place){
+      if (err)
+      res.send(err)
+      res.json(place)  
+    })
+}
+exports.searchPlace = function(req,res){
+    var regex = new RegExp('^'+req.params.place_query+'$', "i")
+    console.log(regex)
+    Place.find({"name":  req.params.place_query})
+    .exec(function(err,places){
+        if (err)
+            res.send(err)
+        res.json(places)
+    });
+}
+
+
+
