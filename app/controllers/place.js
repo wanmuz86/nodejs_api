@@ -9,6 +9,8 @@ exports.postPlaces = function(req, res) {
         closed: false,
        	days: req.body.days
        }
+       place.userId = req.user._id
+    
        place.facilities = [req.body.facilities];
        place.openingTimes = [openingTimes];
        var coords = [req.body.latitude, req.body.longitude]

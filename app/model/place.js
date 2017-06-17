@@ -39,7 +39,8 @@ var PlaceSchema = new Schema({
 	openingTimes: [openingTimeSchema],
 	reviews: [reviewSchema],
 	dateAdded: {type:Date, default: Date.now},
-	products: [productSchema]
+	products: [productSchema],
+	userId : String
 });
 
 
